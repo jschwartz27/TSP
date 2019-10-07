@@ -20,7 +20,7 @@ def evolve(N, chrom_n, gen_n, data, optimal):
     print("Gen_0:: {}".format(best_Fitness))
 
     for gen in range(gen_n):
-        T = Temperature(gen, N)
+        T = Temperatures(gen, N)
         selected_pop, elite = random_selection(genome, T)
         selected_pop_noF = list(zip(*selected_pop))[1]
         next_gen = crossover(selected_pop_noF, T, data)
@@ -32,6 +32,8 @@ def evolve(N, chrom_n, gen_n, data, optimal):
 
         print("Gen{}:: {}, T:: {}\r".format(gen+1, best_Fitness, T), end="")
     print("Final_Fitness:: {}\n".format(best_Fitness))
+    error = round(((best_Fitness - optimal)/optimal) * 100, 2)
+    print("Error:: {}%".format(error))
 
     return der_Übermensch
 
@@ -66,8 +68,9 @@ def random_selection(DNA, T):
         _linear_rank, _exponential_rank,
         _tournament, _roulette, _boltzmann
     )
-    # w = (.1, .2, .3, .4, 0)
-    w = (.05, .25, .25, .4, .05)
+    # w = (.0, .0, .2, .8, .0)
+    w = (.1, .2, .3, .4, 0)
+    # w = (.05, .25, .25, .4, .05)
     func = random.choices(population=selection_functions,
                           weights=w)[0]
     # feeds in DNA with fitness tuple
@@ -232,3 +235,13 @@ def eval_distance(chrom, data):
 
 def _euc_2d(p1, p2):
     return round(((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)**.5, 2)
+
+def Temperatures(n, l):
+    fourth = (l/4)/100
+    p = round(fourth * exp(((-n/30) / (l/30))), 2)
+    return max(int(p * 100), 1)
+
+if __name__ == '__main__':
+    g = 1000
+    l = list(map(lambda x: Temperatures(x, 131), range(g)))
+    print(l)
