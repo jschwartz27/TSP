@@ -7,13 +7,13 @@ def flatten(l):
     return [item for sublist in l for item in sublist]
 
 
-def evolve(N, chrom_n, gen_n, ML_data):
+def evolve(N, chrom_n, gen_n, data, optimal):
     # chroms are each a list of the point index
-    # which will be used to get coords from ML_data
+    # which will be used to get coords from data
     chroms = [list(range(N)) for i in range(chrom_n)]
     for i in chroms:
         random.shuffle(i)
-    genome = list(map(lambda x: eval_distance(x, ML_data), chroms))
+    genome = list(map(lambda x: eval_distance(x, data), chroms))
     genome.sort()
 
     best_Fitness, der_Übermensch = genome[0][0], genome[0][1]
@@ -23,14 +23,14 @@ def evolve(N, chrom_n, gen_n, ML_data):
         T = Temperature(gen, N)
         selected_pop, elite = random_selection(genome, T)
         selected_pop_noF = list(zip(*selected_pop))[1]
-        next_gen = crossover(selected_pop_noF, T, ML_data)
+        next_gen = crossover(selected_pop_noF, T, data)
         genome = elite + next_gen
         genome.sort()
         if genome[0][0] < best_Fitness:
             der_Übermensch = genome[0][1]
             best_Fitness = round(genome[0][0], 2)
 
-        print("Gen{}:: {}\r".format(gen+1, best_Fitness), end="")
+        print("Gen{}:: {}, T:: {}\r".format(gen+1, best_Fitness, T), end="")
     print("Final_Fitness:: {}\n".format(best_Fitness))
 
     return der_Übermensch
@@ -91,6 +91,7 @@ def _truncation(DNA, l, n=.5):
 
 
 def _tournament(**kwargs):
+    # print(kwargs["length_adj"])
     new_chroms = list()
     for i in range(kwargs["length_adj"]):
         # this may or may not be a good idea
@@ -152,7 +153,7 @@ def _boltzmann(**kwargs):
 ### CROSSOVER ###
 
 
-def crossover(DNA, T, ML_data):
+def crossover(DNA, T, data):
     DNA = list(DNA)
     random.shuffle(DNA)
     half = int(len(DNA)/2)
@@ -163,13 +164,13 @@ def crossover(DNA, T, ML_data):
         lambda x, y: PMX_crossover(x, y, chrom_l), DNA[:half], DNA[half:]
     )))
 
-    genome = list(map(lambda x: eval_distance(x, ML_data), cross_DNA))
+    genome = list(map(lambda x: eval_distance(x, data), cross_DNA))
 
     # +2 because it needs to be at least len 2 for a reverse
     mut_len = round(chrom_l * (T/100)) + 2
 
     return list(map(
-        lambda x: mutation(x, chrom_l, mut_len, T, ML_data), genome
+        lambda x: mutation(x, chrom_l, mut_len, T, data), genome
     ))
 
 
@@ -197,7 +198,7 @@ def PMX_crossover(lover_1, lover_2, L):
 ### MUTATION ###
 
 
-def mutation(chrom, L, mut_len, T, ML_data):
+def mutation(chrom, L, mut_len, T, data):
     # mutation length is the percentage of chrom based on Temperature
     m = deepcopy(chrom[1])
     i = random.choice(range(L - mut_len))
@@ -209,7 +210,7 @@ def mutation(chrom, L, mut_len, T, ML_data):
         splice.reverse()
 
     m[idxs[0]:idxs[1]] = splice
-    m = eval_distance(m, ML_data)
+    m = eval_distance(m, data)
     # TODO Check that the negs or whatevs actually make since since we reducing
     if m[0] < chrom[0] or random.random() < exp((m[0]-chrom[0])/T):
         return m
