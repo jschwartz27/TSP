@@ -31,9 +31,9 @@ def evolve(N, chrom_n, gen_n, data, optimal):
             best_Fitness = round(genome[0][0], 2)
 
         print("Gen{}:: {}, T:: {}\r".format(gen+1, best_Fitness, T), end="")
-    print("Final_Fitness:: {}\n".format(best_Fitness))
+    print("Final_Fitness:: {}".format(best_Fitness))
     error = round(((best_Fitness - optimal)/optimal) * 100, 2)
-    print("Error:: {}%".format(error))
+    print("Error:: {}%\n".format(error))
 
     return der_Übermensch
 
