@@ -15,7 +15,7 @@ def load():
         for row in file:
             if row[0].isdigit() is False:
                 if row[0] == "OPTIMAL":
-                    optimal = row[2]
+                    optimal = int(row[2])
                 else:
                     continue
             else:
@@ -29,8 +29,8 @@ def main():
     data, optimal = load()
     N = len(data)
     # print(ML_data[:10]) # .columns.values)
-    chrom_n = 20
-    gen_n = 2000
+    chrom_n = 500
+    gen_n = 500
 
     der_Übermensch = genteik.evolve(N, chrom_n, gen_n, data, optimal)
     print(der_Übermensch)
