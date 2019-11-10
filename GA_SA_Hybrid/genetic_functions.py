@@ -204,21 +204,35 @@ def PMX_crossover(lover_1, lover_2, L):
 def mutation(chrom, L, mut_len, T, data):
     # mutation length is the percentage of chrom based on Temperature
     m = deepcopy(chrom[1])
-    i = random.choice(range(L - mut_len))
-    idxs = (i, i + mut_len)
-    splice = m[idxs[0]:idxs[1]]
-    if random.random() < .5:
-        random.shuffle(splice)
+    if random.random() < .7:
+        i = random.choice(range(L - mut_len))
+        idxs = (i, i + mut_len)
+        splice = m[idxs[0]:idxs[1]]
+        if random.random() < .5:
+            random.shuffle(splice)
+        else:
+            splice.reverse()
+        m[idxs[0]:idxs[1]] = splice
     else:
-        splice.reverse()
+        #i_1 = random.randint(len(chrom) - 4)
+        #i_2 = random.randint(len(chrom) - 9)
+        j = random.randrange(len(chrom[1]))
+        k = random.randrange(len(chrom[1]))
+        
+        m[j] = chrom[1][k]
+        m[k] = chrom[1][j]
 
-    m[idxs[0]:idxs[1]] = splice
     m = eval_distance(m, data)
     # TODO Check that the negs or whatevs actually make since since we reducing
     if m[0] < chrom[0] or random.random() < exp((m[0]-chrom[0])/T):
         return m
     else:
         return chrom
+
+
+def _swap_mutation(chrom, L, mut_len, T):
+    pass
+
 
 ### FITNESS ###
 
@@ -236,9 +250,11 @@ def eval_distance(chrom, data):
 def _euc_2d(p1, p2):
     return round(((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)**.5, 2)
 
+
 def Temperatures(n, l):
     fourth = (l/4)/100
     p = round(fourth * exp(((-n/30) / (l/30))), 2)
+
     return max(int(p * 100), 1)
 
 if __name__ == '__main__':
