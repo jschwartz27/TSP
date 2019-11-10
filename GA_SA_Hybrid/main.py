@@ -1,11 +1,12 @@
 import csv
 import genetic_functions as genteik
 
-
+'''
 def load_test():
     with open('Mona_Lisa_1000.csv', newline='') as csvfile:
         coords = csv.reader(csvfile, delimiter=',', quotechar='|')
         return list(map(lambda x: list(map(lambda y: int(y), x)), coords))
+'''
 
 
 def load():
@@ -29,8 +30,8 @@ def main():
     data, optimal = load()
     N = len(data)
     # print(ML_data[:10]) # .columns.values)
-    chrom_n = 500
-    gen_n = 500
+    chrom_n = 400
+    gen_n = 400
 
     der_Übermensch = genteik.evolve(N, chrom_n, gen_n, data, optimal)
     print(der_Übermensch)
