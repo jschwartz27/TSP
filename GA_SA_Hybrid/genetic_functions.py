@@ -1,4 +1,5 @@
 import random
+import datetime
 from math import exp
 from copy import deepcopy
 
@@ -10,6 +11,7 @@ def flatten(l):
 def evolve(N, chrom_n, gen_n, data, optimal):
     # chroms are each a list of the point index
     # which will be used to get coords from data
+    begin = datetime.datetime.now()
     chroms = [list(range(N)) for i in range(5000)]
     for i in chroms:
         random.shuffle(i)
@@ -36,6 +38,10 @@ def evolve(N, chrom_n, gen_n, data, optimal):
     error = round(((best_Fitness - optimal)/optimal) * 100, 2)
     print("Error:: {}%\n".format(error))
 
+    end = datetime.datetime.now()
+    theTime = end-begin
+    print("TIME:: {}".format(theTime))
+
     return der_Übermensch
 
 
@@ -52,9 +58,8 @@ def random_selection(DNA, T):
     # Elitism
     if random.random() < .4:
         # remember n_elite % 2 MUST == 0
-        n_elite = 2
+        n_elite = random.choice((2, 4, 6))
         elite = DNA[:n_elite]
-        # chroms = DNA[:n_elite]
     else:
         elite = list()
         n_elite = 0
@@ -69,8 +74,9 @@ def random_selection(DNA, T):
         _linear_rank, _exponential_rank,
         _tournament, _roulette, _boltzmann
     )
-    # w = (.0, .0, .2, .8, .0)
-    w = (.1, .2, .3, .4, 0)
+    w = (.1, .4, 0, .5, 0)
+    #w = (0, .5, .1, .4, 0) # best so fat
+    #w = (.1, .2, .3, .4, 0)
     # w = (.05, .25, .25, .4, .05)
     func = random.choices(population=selection_functions,
                           weights=w)[0]
