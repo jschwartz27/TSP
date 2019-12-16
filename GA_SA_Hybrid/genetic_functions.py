@@ -10,13 +10,14 @@ def flatten(l):
 def evolve(N, chrom_n, gen_n, data, optimal):
     # chroms are each a list of the point index
     # which will be used to get coords from data
-    chroms = [list(range(N)) for i in range(chrom_n)]
+    chroms = [list(range(N)) for i in range(5000)]
     for i in chroms:
         random.shuffle(i)
     genome = list(map(lambda x: eval_distance(x, data), chroms))
     genome.sort()
 
     best_Fitness, der_Übermensch = genome[0][0], genome[0][1]
+    genome = genome[:chrom_n]
     print("Gen_0:: {}".format(best_Fitness))
 
     for gen in range(gen_n):
@@ -30,7 +31,7 @@ def evolve(N, chrom_n, gen_n, data, optimal):
             der_Übermensch = genome[0][1]
             best_Fitness = round(genome[0][0], 2)
 
-        print("Gen{}:: {}, T:: {}\r".format(gen+1, best_Fitness, T), end="")
+        print("Gen{}:: {}, T:: {}      \r".format(gen+1, best_Fitness, T), end="")
     print("Final_Fitness:: {}".format(best_Fitness))
     error = round(((best_Fitness - optimal)/optimal) * 100, 2)
     print("Error:: {}%\n".format(error))
@@ -224,7 +225,10 @@ def mutation(chrom, L, mut_len, T, data):
 
     m = eval_distance(m, data)
     # TODO Check that the negs or whatevs actually make since since we reducing
-    if m[0] < chrom[0] or random.random() < exp((m[0]-chrom[0])/T):
+    if m[0] < chrom[0] or random.random() < T/170:#random.random() < exp((m[0]-chrom[0])/T):
+        #print(T)
+        #print(exp((m[0]-chrom[0])/T))
+
         return m
     else:
         return chrom
@@ -252,10 +256,10 @@ def _euc_2d(p1, p2):
 
 
 def Temperatures(n, l):
-    fourth = (l/4)/100
-    p = round(fourth * exp(((-n/30) / (l/30))), 2)
+    eigth = (l/4)/100
+    p = round(eigth * exp(((-n/30) / (l/30))), 2)
 
-    return max(int(p * 100), 1)
+    return max(int(p * 100), 1) +1
 
 if __name__ == '__main__':
     g = 1000
