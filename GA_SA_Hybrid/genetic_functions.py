@@ -215,17 +215,19 @@ def mutation(chrom, L, mut_len, T, data):
             splice.reverse()
         m[idxs[0]:idxs[1]] = splice
     else:
-        #i_1 = random.randint(len(chrom) - 4)
-        #i_2 = random.randint(len(chrom) - 9)
-        j = random.randrange(len(chrom[1]))
-        k = random.randrange(len(chrom[1]))
+        for i in range(int(T/2)):
+            p = random.choice(m)
+            m.remove(p)
+            m.insert(random.randrange(L-1), p)
 
-        m[j] = chrom[1][k]
-        m[k] = chrom[1][j]
+        #j = random.randrange(L) # len(chrom[1])
+        #k = random.randrange(L)
+        #m[j] = chrom[1][k]
+        #m[k] = chrom[1][j]
 
     m = eval_distance(m, data)
     # TODO Check that the negs or whatevs actually make since since we reducing
-    if m[0] < chrom[0] or random.random() < T/200:#random.random() < exp((m[0]-chrom[0])/T):
+    if m[0] < chrom[0] or random.random() < T/170:#random.random() < exp((m[0]-chrom[0])/T):
         return m
     else:
         return chrom
@@ -256,7 +258,7 @@ def Temperatures(n, l):
     eigth = (l/4)/100
     p = round(eigth * exp(((-n/30) / (l/30))), 2)
 
-    return max(int(p * 100), 1) +1
+    return max(int(p * 100), 1) + 1
 
 if __name__ == '__main__':
     g = 1000
