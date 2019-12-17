@@ -29,7 +29,8 @@ def evolve(N, chrom_n, gen_n, data, optimal):
             der_Übermensch = genome[0][1]
             best_Fitness = round(genome[0][0], 2)
 
-        print("Gen{}:: {}, T:: {}      \r".format(gen+1, best_Fitness, T), end="")
+        print("Gen{}:: {}, T:: {}      \r".format(
+            gen+1, best_Fitness, T), end="")
     print("Final_Fitness:: {}".format(best_Fitness))
     error = round(((best_Fitness - optimal)/optimal) * 100, 2)
     print("Error:: {}%\n".format(error))
@@ -71,8 +72,8 @@ def random_selection(DNA, T):
         _tournament, _roulette, _boltzmann
     )
     w = (.1, .4, 0, .5, 0)
-    #w = (0, .5, .1, .4, 0) # best so fat
-    #w = (.1, .2, .3, .4, 0)
+    # w = (0, .5, .1, .4, 0) # best so fat
+    # w = (.1, .2, .3, .4, 0)
     # w = (.05, .25, .25, .4, .05)
     func = random.choices(population=selection_functions,
                           weights=w)[0]
@@ -203,15 +204,16 @@ def PMX_crossover(lover_1, lover_2, L):
 
 ### MUTATION ###
 
+
 def mutation(chrom, L, mut_len, T, data):
     # mutation length is the percentage of chrom based on Temperature
     m = deepcopy(chrom[1])
-    if T < 6: 
+    if T < 6:
         proI = .4
-        pro = .8 #.85
-    else: 
+        pro = .8  # .85
+    else:
         proI = .5
-        pro = .97 # .95
+        pro = .97  # .95
 
     ran = random.random()
     if ran < proI:
@@ -238,10 +240,10 @@ def mutation(chrom, L, mut_len, T, data):
             m.remove(p)
             m.insert(random.randrange(L-1), p)
 
-        #j = random.randrange(L) # len(chrom[1])
-        #k = random.randrange(L)
-        #m[j] = chrom[1][k]
-        #m[k] = chrom[1][j]
+        # j = random.randrange(L) # len(chrom[1])
+        # k = random.randrange(L)
+        # m[j] = chrom[1][k]
+        # m[k] = chrom[1][j]
     elif ran < pro:
         xs = random.sample(range(L), 4)
         xs.sort()
@@ -256,7 +258,7 @@ def mutation(chrom, L, mut_len, T, data):
 
     m = eval_distance(m, data)
     # TODO Check that the negs or whatevs actually make since since we reducing
-    if m[0] < chrom[0] or random.random() < T/170:#random.random() < exp((m[0]-chrom[0])/T):
+    if m[0] < chrom[0] or random.random() < T/170:  # random.random() < exp((m[0]-chrom[0])/T):
         return m
     else:
         return chrom
