@@ -1,36 +1,40 @@
 import random
 import datetime
+import statistics
 from math import exp
 from copy import deepcopy
+from functions import flatten
 
 
-def evolve(N, chrom_n, gen_n, data, optimal):
+def evolve(N, params, data, optimal):
+    fit, mean = list(), list()
     # chroms are each a list of the point index
     # which will be used to get coords from data
     begin = datetime.datetime.now()
-    chroms = [list(range(N)) for i in range(5000)]
-    for i in chroms:
-        random.shuffle(i)
-    genome = list(map(lambda x: eval_distance(x, data), chroms))
-    genome.sort()
-
+    genome = create_chroms(5000, N, data)
     best_Fitness, der_Übermensch = genome[0][0], genome[0][1]
-    genome = genome[:chrom_n]
-    print("Gen_0:: {}".format(best_Fitness))
+    genome = genome[:params["chrom_n"]]
+    mean.append(statistics.mean(list(map(lambda x: x[0], genome))))
+    fit.append(best_Fitness)
 
-    for gen in range(gen_n):
+    print("Gen_0:: {}".format(best_Fitness))
+    for gen in range(params["gen_n"]):
         T = Temperatures(gen, N)
         selected_pop, elite = random_selection(genome, T)
         selected_pop_noF = list(zip(*selected_pop))[1]
-        next_gen = crossover(selected_pop_noF, T, data)
+        next_gen = crossover(selected_pop_noF, T, params["crossP"], data)
         genome = elite + next_gen
         genome.sort()
         if genome[0][0] < best_Fitness:
             der_Übermensch = genome[0][1]
             best_Fitness = round(genome[0][0], 2)
 
-        print("Gen{}:: {}, T:: {}      \r".format(
+        print("Gen{}:: {}, T:: {}     \r".format(
             gen+1, best_Fitness, T), end="")
+
+        mean.append(statistics.mean(list(map(lambda x: x[0], genome))))
+        fit.append(best_Fitness)
+
     print("Final_Fitness:: {}".format(best_Fitness))
     error = round(((best_Fitness - optimal)/optimal) * 100, 2)
     print("Error:: {}%\n".format(error))
@@ -39,12 +43,8 @@ def evolve(N, chrom_n, gen_n, data, optimal):
     theTime = end-begin
     print("TIME:: {}".format(theTime))
 
-    return der_Übermensch
+    return der_Übermensch, {"Fitness": fit, "Mean": mean}
 
-
-def Temperature(n, l):
-    p = round(.25 * exp(-n/30), 2)
-    return max(int(p * 100), 1)
 
 ### SELECTION ###
 
@@ -53,7 +53,7 @@ def random_selection(DNA, T):
     # TODO evaluation done here for all
     l = len(DNA)
     # Elitism
-    if random.random() < .4:
+    if random.random() < .2:
         # remember n_elite % 2 MUST == 0
         n_elite = random.choice((2, 4, 6))
         elite = DNA[:n_elite]
@@ -63,7 +63,7 @@ def random_selection(DNA, T):
     # new pop will be recombined with elite after crossover
     l_adj = l - n_elite
 
-    if random.random() < .3:
+    if random.random() < .2:  # .3
         # truncates by 50%
         DNA = _truncation(DNA, l)
 
@@ -71,8 +71,12 @@ def random_selection(DNA, T):
         _linear_rank, _exponential_rank,
         _tournament, _roulette, _boltzmann
     )
-    w = (.1, .4, 0, .5, 0)
-    # w = (0, .5, .1, .4, 0) # best so fat
+    if T >= 3:
+        w = (.1, .3, .2, .4, 0)
+    else:
+        w = (0, .5, .1, .4, 0)
+    #w = (.1, .4, 0, .5, 0)  # best so fat
+    # w = (0, .5, .1, .4, 0)
     # w = (.1, .2, .3, .4, 0)
     # w = (.05, .25, .25, .4, .05)
     func = random.choices(population=selection_functions,
@@ -157,10 +161,11 @@ def _boltzmann(**kwargs):
 
     return new_chroms
 
+
 ### CROSSOVER ###
 
 
-def crossover(DNA, T, data):
+def crossover(DNA, T, crossP, data):
     DNA = list(DNA)
     random.shuffle(DNA)
     half = int(len(DNA)/2)
@@ -168,7 +173,8 @@ def crossover(DNA, T, data):
     chrom_l = len(DNA[0])
 
     cross_DNA = flatten(list(map(
-        lambda x, y: PMX_crossover(x, y, chrom_l), DNA[:half], DNA[half:]
+        lambda x, y: PMX_crossover(x, y, chrom_l, crossP, data),
+            DNA[:half], DNA[half:]
     )))
 
     genome = list(map(lambda x: eval_distance(x, data), cross_DNA))
@@ -181,6 +187,28 @@ def crossover(DNA, T, data):
     ))
 
 
+def PMX_crossover(lover_1, lover_2, L, crossP, data):
+    # https://www.researchgate.net/figure/Partially-mapped-crossover-operator-PMX_fig1_226665831
+    if random.random() < crossP:  # Crossover probability
+        idxs = random.sample(range(L), 2)
+        idxs.sort()
+        c1 = _pmx_function(lover_1, lover_2, idxs)
+        c2 = _pmx_function(lover_2, lover_1, idxs)
+
+        if random.random() < .3:
+            return c1, c2
+        c1 = eval_distance(c1, data)
+        c2 = eval_distance(c2, data)
+        l1 = eval_distance(lover_1, data)
+        l2 = eval_distance(lover_2, data)
+        alles = [c1, c2, l1, l2]
+        alles.sort()
+
+        return alles[0][1], alles[1][1]
+    else:
+        return lover_1, lover_2
+
+
 def _pmx_function(c1, c2, idxs):
     copy_1 = deepcopy(c1)
     splice2 = c2[idxs[0]:idxs[1]]
@@ -189,31 +217,18 @@ def _pmx_function(c1, c2, idxs):
     return copy_1[:idxs[0]] + splice2 + copy_1[idxs[0]:]
 
 
-def PMX_crossover(lover_1, lover_2, L):
-    # https://www.researchgate.net/figure/Partially-mapped-crossover-operator-PMX_fig1_226665831
-    # crossover probability of .95
-    if random.random() < .95:
-        idxs = random.sample(range(L), 2)
-        idxs.sort()
-        c1 = _pmx_function(lover_1, lover_2, idxs)
-        c2 = _pmx_function(lover_2, lover_1, idxs)
-
-        return c1, c2
-    else:
-        return lover_1, lover_2
-
 ### MUTATION ###
 
 
 def mutation(chrom, L, mut_len, T, data):
     # mutation length is the percentage of chrom based on Temperature
     m = deepcopy(chrom[1])
-    if T < 6:
+    if T > 4: # <6 
         proI = .4
         pro = .8  # .85
     else:
         proI = .5
-        pro = .97  # .95
+        pro = .9  # .97
 
     ran = random.random()
     if ran < proI:
@@ -285,15 +300,27 @@ def _euc_2d(p1, p2):
     return round(((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)**.5, 2)
 
 
-def flatten(l):
-    return [item for sublist in l for item in sublist]
-
-
 def Temperatures(n, l):
     eigth = (l/4)/100
     p = round(eigth * exp(((-n/30) / (l/30))), 2)
 
     return max(int(p * 100), 1) + 1
+
+'''
+def Temperature(n, l):
+    p = round(.25 * exp(-n/30), 2)
+    return max(int(p * 100), 1)
+'''
+
+
+def create_chroms(k, N, data):
+    chroms = [list(range(N)) for i in range(k)]
+    for i in chroms:
+        random.shuffle(i)
+    genome = list(map(lambda x: eval_distance(x, data), chroms))
+    genome.sort()
+
+    return genome
 
 if __name__ == '__main__':
     g = 1000
