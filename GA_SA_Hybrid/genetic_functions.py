@@ -207,20 +207,36 @@ def PMX_crossover(lover_1, lover_2, L):
 
 ### MUTATION ###
 
-
 def mutation(chrom, L, mut_len, T, data):
     # mutation length is the percentage of chrom based on Temperature
     m = deepcopy(chrom[1])
-    if random.random() < .7:
+    if T < 6: 
+        proI = .4
+        pro = .8 #.85
+    else: 
+        proI = .5
+        pro = .97 # .95
+
+    ran = random.random()
+    if ran < proI:
         i = random.choice(range(L - mut_len))
         idxs = (i, i + mut_len)
         splice = m[idxs[0]:idxs[1]]
-        if random.random() < .5:
+        if random.random() < .3:
             random.shuffle(splice)
         else:
             splice.reverse()
         m[idxs[0]:idxs[1]] = splice
-    else:
+        if T < 7 and random.random() < .7:
+            i = random.choice(range(L - mut_len))
+            idxs = (i, i + mut_len)
+            splice = m[idxs[0]:idxs[1]]
+            if random.random() < .3:
+                random.shuffle(splice)
+            else:
+                splice.reverse()
+            m[idxs[0]:idxs[1]] = splice
+    elif ran < .45:
         for i in range(int(T/2)):
             p = random.choice(m)
             m.remove(p)
@@ -230,6 +246,17 @@ def mutation(chrom, L, mut_len, T, data):
         #k = random.randrange(L)
         #m[j] = chrom[1][k]
         #m[k] = chrom[1][j]
+    elif ran < pro:
+        xs = random.sample(range(L), 4)
+        xs.sort()
+        m[xs[0]:xs[1]] = m[xs[0]:xs[1]][::-1]
+        m[xs[2]:xs[3]] = m[xs[2]:xs[3]][::-1]
+    else:
+        xs = random.sample(range(L), 6)
+        xs.sort()
+        m[xs[0]:xs[1]] = m[xs[0]:xs[1]][::-1]
+        m[xs[2]:xs[3]] = m[xs[2]:xs[3]][::-1]
+        m[xs[4]:xs[5]] = m[xs[4]:xs[5]][::-1]
 
     m = eval_distance(m, data)
     # TODO Check that the negs or whatevs actually make since since we reducing
