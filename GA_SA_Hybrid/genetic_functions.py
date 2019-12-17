@@ -4,10 +4,6 @@ from math import exp
 from copy import deepcopy
 
 
-def flatten(l):
-    return [item for sublist in l for item in sublist]
-
-
 def evolve(N, chrom_n, gen_n, data, optimal):
     # chroms are each a list of the point index
     # which will be used to get coords from data
@@ -285,6 +281,10 @@ def eval_distance(chrom, data):
 
 def _euc_2d(p1, p2):
     return round(((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)**.5, 2)
+
+
+def flatten(l):
+    return [item for sublist in l for item in sublist]
 
 
 def Temperatures(n, l):
