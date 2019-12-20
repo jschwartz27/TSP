@@ -75,10 +75,6 @@ def random_selection(DNA, T):
         w = (.1, .3, .2, .4, 0)
     else:
         w = (0, .5, .1, .4, 0)
-    #w = (.1, .4, 0, .5, 0)  # best so fat
-    # w = (0, .5, .1, .4, 0)
-    # w = (.1, .2, .3, .4, 0)
-    # w = (.05, .25, .25, .4, .05)
     func = random.choices(population=selection_functions,
                           weights=w)[0]
     # feeds in DNA with fitness tuple
