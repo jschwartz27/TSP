@@ -1,2 +1,2 @@
 # TSP
-The Traveling Salesman Problem (TSP) is an NP-Hard problem in combinatorial optimization. The algorithm I have designed here finds a solution with about 93% accuracy for a city diagram of over 100 cities.
+The Traveling Salesman Problem (TSP) is an NP-Hard problem in combinatorial optimization. The algorithm I have designed here finds a solution with about 93% accuracy for a city diagram of over 100 cities in under 5 minutes with 1000 chromosomes and 600 generations.
