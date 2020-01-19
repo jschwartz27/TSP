@@ -19,7 +19,7 @@ def evolve(N, params, data, optimal):
 
     print("Gen_0:: {}".format(best_Fitness))
     for gen in range(params["gen_n"]):
-        T = Temperatures(gen, N)
+        T = Temperatures(gen, params["gen_n"], N)
         selected_pop, elite = random_selection(genome, T)
         selected_pop_noF = list(zip(*selected_pop))[1]
         next_gen = crossover(selected_pop_noF, T, params["crossP"], data)
@@ -35,6 +35,10 @@ def evolve(N, params, data, optimal):
         mean.append(statistics.mean(list(map(lambda x: x[0], genome))))
         fit.append(best_Fitness)
 
+        if best_Fitness == 564:
+            print("\n\tYOU WON! Proceed to the next level!")
+            quit()
+
     print("Final_Fitness:: {}".format(best_Fitness))
     error = round(((best_Fitness - optimal)/optimal) * 100, 2)
     print("Error:: {}%\n".format(error))
@@ -43,7 +47,7 @@ def evolve(N, params, data, optimal):
     theTime = end-begin
     print("TIME:: {}".format(theTime))
 
-    return der_Übermensch, {"Fitness": fit, "Mean": mean}
+    return der_Übermensch, {"Mean": mean, "Fitness": fit}, error
 
 
 ### SELECTION ###
@@ -291,9 +295,10 @@ def _euc_2d(p1, p2):
     return round(((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)**.5, 2)
 
 
-def Temperatures(n, l):
-    eigth = (l/4)/100
-    p = round(eigth * exp(((-n/30) / (l/30))), 2)
+def Temperatures(n, gens, l):
+    gensA = gens*.25
+    eigth = (l/8)/100
+    p = round(eigth * exp(((-n/gensA) / (l/30))), 2) # 30 instead of 80
 
     return max(int(p * 100), 1) + 1
 
@@ -308,6 +313,6 @@ def create_chroms(k, N, data):
     return genome
 
 if __name__ == '__main__':
-    g = 1000
-    l = list(map(lambda x: Temperatures(x, 131), range(g)))
+    g = 6000
+    l = list(map(lambda x: Temperatures(x, g, 131), range(g)))
     print(l)
