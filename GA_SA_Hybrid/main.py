@@ -6,12 +6,12 @@ def main():
     data, optimal = f.load_data()
     params = f.load_parameters()
     print("Optimal:: {}\n".format(optimal))
-    der_Übermensch, fitsDict = genteik.evolve(
+    der_Übermensch, fitsDict, error = genteik.evolve(
         len(data), params, data, optimal)
     print(der_Übermensch)
 
     if params["graph_data"] is True:
-        f.show_graph(fitsDict, params)
+        f.show_graph(fitsDict, params, error)
     else:
         quit()
 
