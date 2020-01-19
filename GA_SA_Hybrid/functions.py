@@ -29,7 +29,7 @@ def load_data():
     return coords, optimal
 
 
-def show_graph(data, params):
+def show_graph(data, params, error):
     d = {
         "Type": list(),
         "Generation": list(),
@@ -44,15 +44,17 @@ def show_graph(data, params):
             index += 1
 
     dF = pd.DataFrame(d)
-    plt.title('TSP Fitness vs. Generation (Pop: {}, Gens: {})'.format(
-        params["chrom_n"], params["gen_n"]))
+    with plt.style.context(('dark_background')):
+        plt.title('TSP Fitness vs. Generation (Pop: {}, Gens: {}, Error: {}%;564goal)'.format(
+            params["chrom_n"], params["gen_n"], error))
+        flatui = ['#32cd32', "#FF00FF", "#95a5a6", "#e74c3c", "#34495e", "#2ecc71"]
+        sns.set_palette(flatui)#"husl")
+        sns.lineplot(
+            x="Generation", y="Fitness",
+            hue="Type", #style="type", 
+            data=dF)
 
-    sns.lineplot(
-        x="Generation", y="Fitness",
-        hue="Type", #style="type", 
-        data=dF)
-
-    plt.show()
+        plt.show()
 
 
 def flatten(l):
