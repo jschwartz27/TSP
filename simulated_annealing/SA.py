@@ -32,7 +32,7 @@ class SimulatedAnnealing:
 
         for iteration in range(self.iterations - 1):
             print(f"iteration:: {iteration} Energy:: {round(self.global_lowest_energy, 2)}\r", end="")
-            self.temperature = round(1 - ((iteration + 1) / self.iterations), 3)
+            self.temperature = self.__annealing_schedule(iteration)
             new_config = self.__swap()
             new_config_energy = self.__evaluate(new_config)
 
@@ -60,7 +60,10 @@ class SimulatedAnnealing:
 
         self.percentage_error = round(((
             (self.global_lowest_energy - self.optimal_distance)
-        ) / self.optimal_distance) * 100, 3)
+        ) / self.optimal_distance) * 100, 1)
+
+    def __annealing_schedule(self, i):
+        return round(1 - ((i + 1) / self.iterations), 3)
 
     def __restart(self) -> None:
         self.coords = self.global_lowest_energy_coords

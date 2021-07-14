@@ -1,2 +1,2 @@
 iterations        : 1000000
-restart_threshold : 0.025  # multiplied by iterations
+restart_threshold : 0.01  # multiplied by iterations

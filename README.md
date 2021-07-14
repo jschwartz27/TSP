@@ -10,3 +10,8 @@ Optimal Lengths
 xqf131 : 564
 
 DJB2036 - 2036 Points : 6197
+
+# Simulated Annealing
+based on Minneanopolis algorithm
+
+# Ant Colony Optimization

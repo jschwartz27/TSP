@@ -6,70 +6,70 @@ from copy import deepcopy
 from functions import flatten
 
 
-def evolve(N, params, data, optimal):
+def evolve(n, params, data, optimal):
     fit, mean = list(), list()
     # chroms are each a list of the point index
     # which will be used to get coords from data
     begin = datetime.datetime.now()
-    genome = create_chroms(5000, N, data)
-    best_Fitness, der_Übermensch = genome[0][0], genome[0][1]
+    genome = create_chroms(5000, n, data)
+    best_fitness, der_uebermensch = genome[0][0], genome[0][1]
     genome = genome[:params["chrom_n"]]
     mean.append(statistics.mean(list(map(lambda x: x[0], genome))))
-    fit.append(best_Fitness)
+    fit.append(best_fitness)
 
-    print("Gen_0:: {}".format(best_Fitness))
+    print("Gen_0:: {}".format(best_fitness))
     for gen in range(params["gen_n"]):
-        T = Temperatures(gen, params["gen_n"], N)
-        selected_pop, elite = random_selection(genome, T)
-        selected_pop_noF = list(zip(*selected_pop))[1]
-        next_gen = crossover(selected_pop_noF, T, params["crossP"], data)
+        t = temperatures(gen, params["gen_n"], n)
+        selected_pop, elite = random_selection(genome, t)
+        selected_pop_no_f = list(zip(*selected_pop))[1]
+        next_gen = crossover(selected_pop_no_f, t, params["crossP"], data)
         genome = elite + next_gen
         genome.sort()
-        if genome[0][0] < best_Fitness:
-            der_Übermensch = genome[0][1]
-            best_Fitness = round(genome[0][0], 2)
+        if genome[0][0] < best_fitness:
+            der_uebermensch = genome[0][1]
+            best_fitness = round(genome[0][0], 2)
 
         print("Gen{}:: {}, T:: {}     \r".format(
-            gen+1, best_Fitness, T), end="")
+            gen+1, best_fitness, t), end="")
 
         mean.append(statistics.mean(list(map(lambda x: x[0], genome))))
-        fit.append(best_Fitness)
+        fit.append(best_fitness)
 
-        if best_Fitness == 564:
+        if best_fitness == 564:
             print("\n\tYOU WON! Proceed to the next level!")
             quit()
 
-    print("Final_Fitness:: {}".format(best_Fitness))
-    error = round(((best_Fitness - optimal)/optimal) * 100, 2)
+    print("Final_Fitness:: {}".format(best_fitness))
+    error = round(((best_fitness - optimal)/optimal) * 100, 2)
     print("Error:: {}%\n".format(error))
 
     end = datetime.datetime.now()
-    theTime = end-begin
-    print("TIME:: {}".format(theTime))
+    the_time = end-begin
+    print("TIME:: {}".format(the_time))
 
-    return der_Übermensch, {"Mean": mean, "Fitness": fit}, error
-
-
-### SELECTION ###
+    return der_uebermensch, {"Mean": mean, "Fitness": fit}, error
 
 
-def random_selection(DNA, T):
+# ### SELECTION ###
+
+
+def random_selection(dna, T):
     # TODO evaluation done here for all
-    l = len(DNA)
+    local_array = len(dna)
     # Elitism
     if random.random() < .2:
         # remember n_elite % 2 MUST == 0
         n_elite = random.choice((2, 4, 6))
-        elite = DNA[:n_elite]
+        elite = dna[:n_elite]
     else:
         elite = list()
         n_elite = 0
     # new pop will be recombined with elite after crossover
-    l_adj = l - n_elite
+    l_adj = local_array - n_elite
 
     if random.random() < .2:  # .3
         # truncates by 50%
-        DNA = _truncation(DNA, l)
+        dna = _truncation(dna, local_array)
 
     selection_functions = (
         _linear_rank, _exponential_rank,
@@ -84,8 +84,8 @@ def random_selection(DNA, T):
     # feeds in DNA with fitness tuple
     # TODO change this to keyword args
     keywords = {
-        "DNA": DNA,
-        "length": l,
+        "DNA": dna,
+        "length": local_array,
         "length_adj": l_adj,
         "temp": T
     }
@@ -93,12 +93,12 @@ def random_selection(DNA, T):
     return func(**keywords), elite
 
 
-def _truncation(DNA, l, n=.5):
-    assert l % 2 == 0, "CANNOT TRUNCATE UNEAVEN DNA"
+def _truncation(dna, local_array, n=.5):
+    assert local_array % 2 == 0, "CANNOT TRUNCATE UNEAVEN DNA"
 
-    DNA = DNA[:int(l*n)]
+    dna = dna[:int(local_array*n)]
     # this doubles and maintains fitness ordering of chroms
-    return flatten(zip(DNA, DNA))
+    return flatten(zip(dna, dna))
 
 
 def _tournament(**kwargs):
@@ -117,7 +117,7 @@ def _roulette(**kwargs):
     # strip to get fitnesses
     fs = list(zip(*kwargs["DNA"]))[0]
     if len(list(set(fs))) == 1:
-        fs = [1 for i in range(len(fs))]
+        fs = [1 for _ in range(len(fs))]
     else:
         diff = fs[-1]
         # last chrom has 0 prob of selection, but...
@@ -162,35 +162,35 @@ def _boltzmann(**kwargs):
     return new_chroms
 
 
-### CROSSOVER ###
+# ### CROSSOVER ###
 
 
-def crossover(DNA, T, crossP, data):
-    DNA = list(DNA)
-    random.shuffle(DNA)
-    half = int(len(DNA)/2)
-    L = range(len(DNA[0]))
-    chrom_l = len(DNA[0])
+def crossover(dna, temperature, cross_prob, data):
+    dna = list(dna)
+    random.shuffle(dna)
+    half = int(len(dna)/2)
+    # L = range(len(dna[0]))
+    chrom_l = len(dna[0])
 
-    cross_DNA = flatten(list(map(
-        lambda x, y: PMX_crossover(x, y, chrom_l, crossP, data),
-            DNA[:half], DNA[half:]
+    cross_dna = flatten(list(map(
+        lambda x, y: pmx_crossover(x, y, chrom_l, cross_prob, data),
+        dna[:half], dna[half:]
     )))
 
-    genome = list(map(lambda x: eval_distance(x, data), cross_DNA))
+    genome = list(map(lambda x: eval_distance(x, data), cross_dna))
 
     # +2 because it needs to be at least len 2 for a reverse
-    mut_len = round(chrom_l * (T/100)) + 2
+    mut_len = round(chrom_l * (temperature/100)) + 2
 
     return list(map(
-        lambda x: mutation(x, chrom_l, mut_len, T, data), genome
+        lambda x: mutation(x, chrom_l, mut_len, temperature, data), genome
     ))
 
 
-def PMX_crossover(lover_1, lover_2, L, crossP, data):
+def pmx_crossover(lover_1, lover_2, local_array, cross_prob, data):
     # https://www.researchgate.net/figure/Partially-mapped-crossover-operator-PMX_fig1_226665831
-    if random.random() < crossP:  # Crossover probability
-        idxs = random.sample(range(L), 2)
+    if random.random() < cross_prob:  # Crossover probability
+        idxs = random.sample(range(local_array), 2)
         idxs.sort()
         c1 = _pmx_function(lover_1, lover_2, idxs)
         c2 = _pmx_function(lover_2, lover_1, idxs)
@@ -217,22 +217,22 @@ def _pmx_function(c1, c2, idxs):
     return copy_1[:idxs[0]] + splice2 + copy_1[idxs[0]:]
 
 
-### MUTATION ###
+# ### MUTATION ###
 
 
-def mutation(chrom, L, mut_len, T, data):
+def mutation(chrom, local_array, mut_len, temperature, data):
     # mutation length is the percentage of chrom based on Temperature
     m = deepcopy(chrom[1])
-    if T > 4: # <6 
-        proI = .4
+    if temperature > 4:  # <6
+        pro_i = .4
         pro = .8  # .85
     else:
-        proI = .5
+        pro_i = .5
         pro = .9  # .97
 
     ran = random.random()
-    if ran < proI:
-        i = random.choice(range(L - mut_len))
+    if ran < pro_i:
+        i = random.choice(range(local_array - mut_len))
         idxs = (i, i + mut_len)
         splice = m[idxs[0]:idxs[1]]
         if random.random() < .3:
@@ -240,8 +240,8 @@ def mutation(chrom, L, mut_len, T, data):
         else:
             splice.reverse()
         m[idxs[0]:idxs[1]] = splice
-        if T < 7 and random.random() < .7:
-            i = random.choice(range(L - mut_len))
+        if temperature < 7 and random.random() < .7:
+            i = random.choice(range(local_array - mut_len))
             idxs = (i, i + mut_len)
             splice = m[idxs[0]:idxs[1]]
             if random.random() < .3:
@@ -250,17 +250,17 @@ def mutation(chrom, L, mut_len, T, data):
                 splice.reverse()
             m[idxs[0]:idxs[1]] = splice
     elif ran < .45:
-        for i in range(int(T/2)):
+        for i in range(int(temperature/2)):
             p = random.choice(m)
             m.remove(p)
-            m.insert(random.randrange(L-1), p)
+            m.insert(random.randrange(local_array-1), p)
     elif ran < pro:
-        xs = random.sample(range(L), 4)
+        xs = random.sample(range(local_array), 4)
         xs.sort()
         m[xs[0]:xs[1]] = m[xs[0]:xs[1]][::-1]
         m[xs[2]:xs[3]] = m[xs[2]:xs[3]][::-1]
     else:
-        xs = random.sample(range(L), 6)
+        xs = random.sample(range(local_array), 6)
         xs.sort()
         m[xs[0]:xs[1]] = m[xs[0]:xs[1]][::-1]
         m[xs[2]:xs[3]] = m[xs[2]:xs[3]][::-1]
@@ -268,17 +268,18 @@ def mutation(chrom, L, mut_len, T, data):
 
     m = eval_distance(m, data)
 
-    if m[0] < chrom[0] or random.random() < T/170:
+    if m[0] < chrom[0] or random.random() < temperature/170:
         return m
     else:
         return chrom
 
 
-def _swap_mutation(chrom, L, mut_len, T):
+'''
+def _swap_mutation(chrom, local_array, mut_len, temperature):
     pass
+'''
 
-
-### FITNESS ###
+# ### FITNESS ###
 
 
 def eval_distance(chrom, data):
@@ -288,23 +289,23 @@ def eval_distance(chrom, data):
     for i in range(1, len(c)):
         distance += _euc_2d(data[c[i]], data[c[i-1]])
 
-    return (round(distance, 2), chrom)
+    return round(distance, 2), chrom
 
 
 def _euc_2d(p1, p2):
     return round(((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)**.5, 2)
 
 
-def Temperatures(n, gens, l):
-    gensA = gens*.25
-    eigth = (l/8)/100
-    p = round(eigth * exp(((-n/gensA) / (l/30))), 2) # 30 instead of 80
+def temperatures(n, gens, length: int):
+    gens_a = gens*.25
+    eighth = (length/8)/100
+    p = round(eighth * exp(((-n/gens_a) / (length/30))), 2)  # 30 instead of 80
 
     return max(int(p * 100), 1) + 1
 
 
-def create_chroms(k, N, data):
-    chroms = [list(range(N)) for i in range(k)]
+def create_chroms(k, n, data):
+    chroms = [list(range(n)) for _ in range(k)]
     for i in chroms:
         random.shuffle(i)
     genome = list(map(lambda x: eval_distance(x, data), chroms))
@@ -312,7 +313,8 @@ def create_chroms(k, N, data):
 
     return genome
 
+
 if __name__ == '__main__':
     g = 6000
-    l = list(map(lambda x: Temperatures(x, g, 131), range(g)))
-    print(l)
+    array = list(map(lambda x: temperatures(x, g, 131), range(g)))
+    print(array)
