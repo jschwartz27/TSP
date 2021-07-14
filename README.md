@@ -3,8 +3,10 @@ The Traveling Salesman Problem (TSP) is an NP-Hard problem in combinatorial opti
 
 # Data Sets
 https://www.math.uwaterloo.ca/tsp/data/index.html
+https://www.math.uwaterloo.ca/tsp/vlsi/index.html
 
 Optimal Lengths
+
 xqf131 : 564
 
 DJB2036 - 2036 Points : 6197

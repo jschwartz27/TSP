@@ -43,23 +43,23 @@ def show_graph(data, params, error):
             d["Fitness"].append(j)
             index += 1
 
-    dF = pd.DataFrame(d)
-    with plt.style.context(('dark_background')):
+    data_frame = pd.DataFrame(d)
+    with plt.style.context('dark_background'):
         plt.title('TSP Fitness vs. Generation (Pop: {}, Gens: {}, Error: {}%;564goal)'.format(
             params["chrom_n"], params["gen_n"], error))
         flatui = ['#32cd32', "#FF00FF", "#95a5a6", "#e74c3c", "#34495e", "#2ecc71"]
-        sns.set_palette(flatui)#"husl")
+        sns.set_palette(flatui)  # "husl")
         sns.lineplot(
             x="Generation", y="Fitness",
-            hue="Type", #style="type", 
-            data=dF)
+            hue="Type",  # style="type",
+            data=data_frame)
 
         plt.show()
 
 
-def flatten(l):
-    return [item for sublist in l for item in sublist]
+def flatten(array):
+    return [item for sublist in array for item in sublist]
 
 
-def reverse(l):
-    return l[::-1]
+def reverse(array):
+    return array[::-1]
