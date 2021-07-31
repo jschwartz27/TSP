@@ -8,7 +8,7 @@ from functions import flatten
 
 def evolve(n, params, data, optimal):
     fit, mean = list(), list()
-    # chroms are each a list of the point index
+    # chromosomes are each a list of the point index
     # which will be used to get coords from data
     begin = datetime.datetime.now()
     genome = create_chroms(5000, n, data)
@@ -230,8 +230,8 @@ def mutation(chrom, local_array, mut_len, temperature, data):
         pro_i = .5
         pro = .9  # .97
 
-    ran = random.random()
-    if ran < pro_i:
+    random_p = random.random()
+    if random_p < pro_i:
         i = random.choice(range(local_array - mut_len))
         idxs = (i, i + mut_len)
         splice = m[idxs[0]:idxs[1]]
@@ -249,12 +249,12 @@ def mutation(chrom, local_array, mut_len, temperature, data):
             else:
                 splice.reverse()
             m[idxs[0]:idxs[1]] = splice
-    elif ran < .45:
+    elif random_p < .45:
         for i in range(int(temperature/2)):
             p = random.choice(m)
             m.remove(p)
             m.insert(random.randrange(local_array-1), p)
-    elif ran < pro:
+    elif random_p < pro:
         xs = random.sample(range(local_array), 4)
         xs.sort()
         m[xs[0]:xs[1]] = m[xs[0]:xs[1]][::-1]

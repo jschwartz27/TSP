@@ -6,7 +6,7 @@ def main():
     data, optimal = f.load_data()
     params = f.load_parameters()
     print("Optimal:: {}\n".format(optimal))
-    der_uebermensch, fitness_dictionary, error = genetik.evolve(
+    der_uebermensch, fitness_dictionary, error = genetik.NaturalSelection(
         len(data), params, data, optimal)
     print(der_uebermensch)
 

@@ -20,6 +20,8 @@ def main():
         genetic_simulated_annealing = GeneticSimulatedAnnealing(city_coordinates, parameters)
         genetic_simulated_annealing.run_genetic_simulated_annealing()
 
+        # print(genetic_simulated_annealing.genome[:2])
+
 
 if __name__ == "__main__":
     main()
