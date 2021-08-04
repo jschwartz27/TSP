@@ -1,6 +1,6 @@
 # GENERAL PARAMETERS
 general:
-  chromosome_n : 5000  # Must be even integer
+  chromosome_n : 50  # Must be even integer
   generation_n : 600
 
 # CROSSOVER PARAMETERS
