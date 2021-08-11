@@ -5,7 +5,7 @@ from math import exp
 from typing import Dict, List, Tuple
 
 
-def flatten(array):
+def flatten(array: List[List[any]]):
     return [item for sublist in array for item in sublist]
 
 
@@ -18,10 +18,12 @@ class Chromosome:
 
 class Genome:
 
-    def __init__(self, genome: List[Chromosome], fitness_mean_data: Dict, best: Chromosome):
+    def __init__(self, genome: List[Chromosome], fitness_mean_data: Dict,
+                 best: Chromosome, error: float):
         self.genome = genome
         self.best_fitness = best
         self.fitness_mean_data = fitness_mean_data
+        self.error = error
 
 
 class GeneticSimulatedAnnealing:
@@ -53,7 +55,7 @@ class GeneticSimulatedAnnealing:
         self.__append_data()
 
         for temperature in self.__exponential_decay_annealing_schedule():
-            print(f"iteration:: {temperature} Energy:: {round(self.genome[0].fitness, 2)}\r", end="")
+            print(f"temperature:: {temperature} Energy:: {round(self.genome[0].fitness, 2)}\r", end="")
 
             # ### SELECTION ###
             elite, selected_pop = Selection(self.genome, len(self.coords), self.chromosome_n, temperature,
@@ -67,10 +69,6 @@ class GeneticSimulatedAnnealing:
             mutated_selected_pop_crossed = Mutation(selected_pop_crossed, self.coords, temperature,
                                                     self.mutation_parameters).mutate()
 
-            # print(len(selected_pop))
-            # elite_chromosomes = list(map(lambda x: Chromosome(x, eval_distance(x, self.coords)), elite))
-            # mutated_selected_pop_crossed_chromosomes = list(map(
-                # lambda x: Chromosome(x, eval_distance(x, self.coords)), mutated_selected_pop_crossed))
             self.genome: List[Chromosome] = sorted(
                 [*elite, *mutated_selected_pop_crossed],
                 key=lambda x: x.fitness
@@ -78,7 +76,12 @@ class GeneticSimulatedAnnealing:
 
             self.__append_data()
 
-        return Genome(self.genome, self.data, self.best)
+            if self.genome[0].fitness == self.optimal_distance:
+                break
+
+        error = round((self.genome[0].fitness - self.optimal_distance) / self.optimal_distance, 2)
+
+        return Genome(self.genome, self.data, self.best, error)
 
     def __create_chroms(self) -> List[Chromosome]:
         """return list of Chromosomes sorted by fitness"""

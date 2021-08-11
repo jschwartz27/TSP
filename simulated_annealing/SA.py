@@ -62,6 +62,10 @@ class SimulatedAnnealing:
             (self.global_lowest_energy - self.optimal_distance)
         ) / self.optimal_distance) * 100, 1)
 
+        print(f"\nERROR          :: {self.percentage_error}%")
+        print(f"LOWEST ENERGY  :: {round(self.global_lowest_energy, 2)}")
+        print(f"OPTIMAL ENERGY :: {self.optimal_distance}")
+
     def __annealing_schedule(self, i):
         return round(1 - ((i + 1) / self.iterations), 3)
 

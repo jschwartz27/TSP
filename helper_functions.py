@@ -2,7 +2,9 @@ import csv
 import yaml
 import numpy as np
 from typing import List
+import matplotlib.pyplot as plt
 
+plt.style.use('dark_background')
 
 def load_yaml(filename: str):
     with open(f"{filename}.yaml", 'r') as stream:
@@ -37,8 +39,6 @@ def load_coordinates(city_data_file="xqf131") -> Coordinates:
 
 
 def plot_data(data, restarts: List[int]) -> None:
-    import matplotlib.pyplot as plt
-    plt.style.use('dark_background')
     t = np.arange(len(data))
     fig, ax = plt.subplots()
     ax.plot(t, data, color='limegreen')
@@ -51,4 +51,17 @@ def plot_data(data, restarts: List[int]) -> None:
             ax.axvline(x=restart_x_value, color="red")
     # ax.grid()
     # fig.savefig("test.png")
+    plt.show()
+
+
+def plot_data_genetic(data, error):
+    t = np.arange(len(data["mean"]))
+    fig, ax = plt.subplots()
+    ax.plot(t, data["fitness"], color='limegreen')
+    ax.plot(t, data["mean"], color='magenta')
+    ax.set(
+        xlabel='time (iterations)',
+        ylabel='energy (E)',
+        title=f'Energy over Genetic_Annealing Schedule; Error: {error}%')
+
     plt.show()

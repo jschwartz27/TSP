@@ -1,7 +1,7 @@
 # GENERAL PARAMETERS
 general:
-  chromosome_n : 50  # Must be even integer
-  generation_n : 600
+  chromosome_n : 500  # Must be even integer
+  generation_n : 1000
 
 # CROSSOVER PARAMETERS
 crossover:
@@ -9,10 +9,11 @@ crossover:
 
 # SELECTION PARAMETERS
 selection:
-  elite_p           : 0.2
-  truncation_p      : 0.2
+  keep_best         : 1  # Should either be positive integer or 0
+  elite_p           : 0.3
+  truncation_p      : 0.1
   truncation_amount : 0.5  # Must be 0.5 at this point in time
 
 # MUTATION PARAMETERS
 mutation:
-  rate : 0.1
+  rate : 0.9
