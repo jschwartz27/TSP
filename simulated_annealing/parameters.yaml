@@ -1,2 +1,5 @@
-iterations        : 100000
+iterations        : 500000
 restart_threshold : 0.01  # multiplied by iterations
+annealing_schedule:
+  coefficient : 0.7  # (0, 1]
+  exponent    : -5 # [-n, 0)

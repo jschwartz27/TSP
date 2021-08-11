@@ -1,5 +1,6 @@
 import random
 import numpy as np
+from math import exp
 from typing import Dict, List
 
 # import numpy.typing as npt
@@ -20,6 +21,7 @@ class SimulatedAnnealing:
         self.coords: np.ndarray = city.coords
         self.iterations: int = parameters["iterations"]
         self.restart_threshold: int = int(self.iterations * parameters["restart_threshold"])
+        self.annealing_schedule = parameters["annealing_schedule"]
         self.energy: float = self.__evaluate(city.coords)
         self.data: List[float] = [round(self.energy, 3)]
         self.global_lowest_energy: float = self.energy
@@ -30,9 +32,9 @@ class SimulatedAnnealing:
 
         suboptimal_iterations: int = 0
 
-        for iteration in range(self.iterations - 1):
+        for iteration, temperature in enumerate(self.__exponential_decay_annealing_schedule()):  # range(self.iterations - 1):
             print(f"iteration:: {iteration} Energy:: {round(self.global_lowest_energy, 2)}\r", end="")
-            self.temperature = self.__annealing_schedule(iteration)
+            self.temperature = temperature  # self.__annealing_schedule(iteration)
             new_config = self.__swap()
             new_config_energy = self.__evaluate(new_config)
 
@@ -66,8 +68,17 @@ class SimulatedAnnealing:
         print(f"LOWEST ENERGY  :: {round(self.global_lowest_energy, 2)}")
         print(f"OPTIMAL ENERGY :: {self.optimal_distance}")
 
+    def __exponential_decay_annealing_schedule(self):
+        """return temperature which is a probability (0, 1]"""
+        j, k = self.annealing_schedule["coefficient"], self.annealing_schedule["exponent"]
+        return map(
+            lambda x: round(j * exp(k * x), 3), map(
+                lambda y: round(y/self.iterations, 3), range(self.iterations)))
+
+    '''
     def __annealing_schedule(self, i):
         return round(1 - ((i + 1) / self.iterations), 3)
+    '''
 
     def __restart(self) -> None:
         self.coords = self.global_lowest_energy_coords

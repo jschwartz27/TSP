@@ -2,10 +2,11 @@ import random
 import statistics
 import numpy as np
 from math import exp
+from datetime import datetime
 from typing import Dict, List, Tuple
 
 
-def flatten(array: List[List[any]]):
+def flatten(array):
     return [item for sublist in array for item in sublist]
 
 
@@ -41,6 +42,7 @@ class GeneticSimulatedAnnealing:
         self.optimal_distance: int = city.optimal_distance
         self.chromosome_n: int = parameters["general"]["chromosome_n"]
         self.generation_n: int = parameters["general"]["generation_n"]
+        self.annealing_schedule = parameters["general"]["annealing_schedule"]
 
         self.selection_parameters = parameters["selection"]
         self.crossover_parameters = parameters["crossover"]
@@ -51,6 +53,7 @@ class GeneticSimulatedAnnealing:
     def run_genetic_simulated_annealing(self) -> Genome:
 
         assert self.chromosome_n % 2 == 0, "Chromosome_n must be even"
+        begin = datetime.now()
 
         self.__append_data()
 
@@ -79,7 +82,14 @@ class GeneticSimulatedAnnealing:
             if self.genome[0].fitness == self.optimal_distance:
                 break
 
-        error = round((self.genome[0].fitness - self.optimal_distance) / self.optimal_distance, 2)
+        error = round(
+            (100 * (self.genome[0].fitness - self.optimal_distance) / self.optimal_distance), 2)
+
+        delta = datetime.now() - begin
+        print(f"\nERROR          :: {error}%")
+        print(f"LOWEST ENERGY  :: {round(self.genome[0].fitness, 2)}")
+        print(f"OPTIMAL ENERGY :: {self.optimal_distance}")
+        print(f"TOTAL TIME :: {delta.total_seconds()}")
 
         return Genome(self.genome, self.data, self.best, error)
 
@@ -125,8 +135,9 @@ class GeneticSimulatedAnnealing:
 
     def __exponential_decay_annealing_schedule(self):
         """return temperature which is a probability (0, 1]"""
+        j, k = self.annealing_schedule["coefficient"], self.annealing_schedule["exponent"]
         return map(
-            lambda x: round(exp(-5 * x), 3), map(
+            lambda x: round(j * exp(k * x), 3), map(
                 lambda y: round(y/self.generation_n, 3), range(self.generation_n)))
 
 
