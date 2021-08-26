@@ -3,7 +3,7 @@ general:
   chromosome_n : 600  # Must be even integer
   generation_n : 1000
   annealing_schedule:
-    coefficient : 0.55
+    coefficient : 0.7
     exponent    : -5
 
 # CROSSOVER PARAMETERS
@@ -13,10 +13,10 @@ crossover:
 # SELECTION PARAMETERS
 selection:
   # keep_best       : 1 # Should either be positive integer or 0
-  elite_p           : 1 # 0.95
+  elite_p           : 0.95
   truncation_p      : 0.3
   truncation_amount : 0.5  # Must be 0.5 at this point in time
 
 # MUTATION PARAMETERS
 mutation:
-  rate : 1 # 0.95
+  rate : 0.95

@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 plt.style.use('dark_background')
 
+
 def load_yaml(filename: str):
     with open(f"{filename}.yaml", 'r') as stream:
         try:

@@ -61,7 +61,7 @@ class GeneticSimulatedAnnealing:
             print(f"temperature:: {temperature} Energy:: {round(self.genome[0].fitness, 2)}\r", end="")
 
             # ### SELECTION ###
-            elite, selected_pop = Selection(self.genome, len(self.coords), self.chromosome_n, temperature,
+            elite, selected_pop = Selection(self.genome, self.chromosome_n, temperature,
                                             self.selection_parameters).select()
 
             # ### CROSSOVER ###
@@ -118,12 +118,6 @@ class GeneticSimulatedAnnealing:
 
         return round(distance, 3)
 
-    """@staticmethod
-    def __annealing_schedule(generation_enthalpy: float) -> float:
-        # return temperature which is a probability [0, 1]
-        return exp(-5 * generation_enthalpy)
-    """
-
     def __append_data(self) -> None:
         """appends best_fitness and mean"""
         self.data["fitness"].append(self.genome[0].fitness)
@@ -154,14 +148,12 @@ def eval_distance(chromosome: np.ndarray, coords: np.array) -> float:
 
 class Selection:
 
-    # length_to_append: int = 0
-    elite_n: int = 0
-    elite: List[Chromosome] = list()
-
-    def __init__(self, genome: List[Chromosome], chromosome_l: int, chromosome_n: int,
+    def __init__(self, genome: List[Chromosome], chromosome_n: int,
                  temperature: float, selection_params):
+        self.elite_n: int = 0
+        self.elite: List[Chromosome] = list()
+
         self.genome = genome
-        self.chromosome_l = chromosome_l
         self.chromosome_n = chromosome_n
         self.length_to_append = chromosome_n
         self.temperature = temperature
