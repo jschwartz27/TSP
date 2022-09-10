@@ -34,7 +34,6 @@ class GeneticSimulatedAnnealing:
         "fitness": list(),
         "mean": list()
     }
-    temperature: float = None
 
     def __init__(self, city, parameters: Dict):
 
